@@ -9,6 +9,6 @@ A console-based hospital appointment management system built with Dart. This app
 - **Authentication**: Secure login system with role-based access control
 - **Persistent Storage**: JSON-based data persistence for users, appointments, and medical records
 
-## System Architecture
+## UML Diagram
 
 ![Hospital Appointment UML Diagram](HospitalAppointmentUML.jpg)
