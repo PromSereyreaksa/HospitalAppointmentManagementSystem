@@ -1,0 +1,28 @@
+[
+  {
+    "id": "rec-001",
+    "password": "receptionist123",
+    "name": "Alice Williams",
+    "email": "alice.williams@hospital.com",
+    "phoneNumber": "555-0201",
+    "dateOfBirth": "1990-11-05T00:00:00.000",
+    "gender": "FEMALE",
+    "employeeId": "emp-rec-001",
+    "department": "GENERAL_HEALTH_CARE",
+    "shift": "MORNING",
+    "deskNumber": "DESK-001"
+  },
+  {
+    "id": "rec-002",
+    "password": "receptionist123",
+    "name": "Bob Davis",
+    "email": "bob.davis@hospital.com",
+    "phoneNumber": "555-0202",
+    "dateOfBirth": "1988-07-18T00:00:00.000",
+    "gender": "MALE",
+    "employeeId": "emp-rec-002",
+    "department": "GENERAL_HEALTH_CARE",
+    "shift": "AFTERNOON",
+    "deskNumber": "DESK-002"
+  }
+]

@@ -1,0 +1,23 @@
+enum AppointmentStatus {
+  APPROVED,
+  DENIED,
+  PENDING
+}
+
+enum AppointmentType {
+  CONSULTATION,
+  FOLLOW_UP,
+  EMERGENCY,
+  ROUTINE_CHECKUP,
+  VACCINATION
+}
+
+enum AppointmentTimeSlot {
+  MORNING_8_9,
+  MORNING_9_10,
+  MORNING_10_11,
+  AFTERNOON_1_2,
+  AFTERNOON_2_3,
+  AFTERNOON_3_4,
+  AFTERNOON_4_5
+}

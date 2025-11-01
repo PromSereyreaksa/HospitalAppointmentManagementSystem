@@ -1,0 +1,12 @@
+enum Shift {
+  MORNING,
+  AFTERNOON,
+  NIGHT
+}
+
+enum Department {
+  GENERAL_HEALTH_CARE,
+  DENTAL_SERVICES,
+  ORTHOPEDICS,
+  PEDIATRICS
+}

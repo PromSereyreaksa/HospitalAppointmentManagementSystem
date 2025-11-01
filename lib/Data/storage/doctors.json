@@ -1,0 +1,44 @@
+[
+  {
+    "id": "doc-001",
+    "password": "doctor123",
+    "name": "Dr. John Smith",
+    "email": "john.smith@hospital.com",
+    "phoneNumber": "555-0101",
+    "dateOfBirth": "1980-05-15T00:00:00.000",
+    "gender": "MALE",
+    "employeeId": "emp-doc-001",
+    "department": "GENERAL_HEALTH_CARE",
+    "shift": "MORNING",
+    "specialty": "INTERNAL_MEDICINE",
+    "availability": true
+  },
+  {
+    "id": "doc-002",
+    "password": "doctor123",
+    "name": "Dr. Sarah Johnson",
+    "email": "sarah.johnson@hospital.com",
+    "phoneNumber": "555-0102",
+    "dateOfBirth": "1985-08-22T00:00:00.000",
+    "gender": "FEMALE",
+    "employeeId": "emp-doc-002",
+    "department": "PEDIATRICS",
+    "shift": "AFTERNOON",
+    "specialty": "PEDIATRICS",
+    "availability": true
+  },
+  {
+    "id": "doc-003",
+    "password": "doctor123",
+    "name": "Dr. Michael Brown",
+    "email": "michael.brown@hospital.com",
+    "phoneNumber": "555-0103",
+    "dateOfBirth": "1978-03-10T00:00:00.000",
+    "gender": "MALE",
+    "employeeId": "emp-doc-003",
+    "department": "ORTHOPEDICS",
+    "shift": "MORNING",
+    "specialty": "SURGERY",
+    "availability": true
+  }
+]
