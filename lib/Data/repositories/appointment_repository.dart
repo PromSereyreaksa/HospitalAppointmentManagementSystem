@@ -12,10 +12,12 @@ class AppointmentRepository {
     if (!file.existsSync()) {
       return appointments;
     }
+
     String content = file.readAsStringSync();
     if (content.isEmpty) {
       return appointments;
     }
+
     List<dynamic> jsonList = jsonDecode(content);
     for (int i = 0; i < jsonList.length; i++) {
       appointments.add(_fromJson(jsonList[i]));
@@ -28,6 +30,7 @@ class AppointmentRepository {
     for (int i = 0; i < appointments.length; i++) {
       jsonList.add(_toJson(appointments[i]));
     }
+
     File file = File(filePath);
     file.parent.createSync(recursive: true);
     file.writeAsStringSync(jsonEncode(jsonList));
@@ -39,9 +42,12 @@ class AppointmentRepository {
       patientId: json['patientId'],
       doctorId: json['doctorId'],
       dateTime: DateTime.parse(json['dateTime']),
-      timeSlot: AppointmentTimeSlot.values.firstWhere((e) => e.toString() == 'AppointmentTimeSlot.${json['timeSlot']}'),
-      status: AppointmentStatus.values.firstWhere((e) => e.toString() == 'AppointmentStatus.${json['status']}'),
-      type: AppointmentType.values.firstWhere((e) => e.toString() == 'AppointmentType.${json['type']}'),
+      timeSlot: AppointmentTimeSlot.values.firstWhere(
+          (e) => e.toString() == 'AppointmentTimeSlot.${json['timeSlot']}'),
+      status: AppointmentStatus.values.firstWhere(
+          (e) => e.toString() == 'AppointmentStatus.${json['status']}'),
+      type: AppointmentType.values
+          .firstWhere((e) => e.toString() == 'AppointmentType.${json['type']}'),
       notes: json['notes'],
       reason: json['reason'],
     );

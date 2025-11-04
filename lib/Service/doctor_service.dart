@@ -19,6 +19,7 @@ class DoctorService {
     if (currentDoctor == null) {
       return [];
     }
+    // AI generated
     List<Appointment> doctorSchedule = [];
     for (int i = 0; i < appointments.length; i++) {
       if (appointments[i].getDoctorId() == currentDoctor!.getId()) {
@@ -27,14 +28,14 @@ class DoctorService {
     }
     return doctorSchedule;
   }
-  // AI generated
-  
+
   bool addAppointmentNotes(String appointmentId, String notes) {
     for (int i = 0; i < appointments.length; i++) {
       if (appointments[i].getAppointmentId() == appointmentId) {
         if (appointments[i].getDoctorId() == currentDoctor?.getId()) {
           String currentNotes = appointments[i].getNotes();
-          String newNotes = currentNotes.isEmpty ? notes : currentNotes + '\n' + notes;
+          String newNotes =
+              currentNotes.isEmpty ? notes : currentNotes + '\n' + notes;
           Appointment updatedAppointment = Appointment(
             appointmentId: appointments[i].getAppointmentId(),
             patientId: appointments[i].getPatientId(),
