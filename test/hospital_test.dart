@@ -419,4 +419,277 @@ void main() {
       }
     });
   });
+
+  group('Receptionist Service Tests - View and Search Patients', () {
+    test('13. View all patients returns list', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var patients = receptionistService.viewAllPatients();
+      
+      expect(patients, isNotNull);
+      expect(patients, isList);
+      expect(patients.length, greaterThan(0));
+    });
+
+    test('14. Search patients by name', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var results = receptionistService.searchPatients('Emma');
+      
+      expect(results, isList);
+      expect(results.isNotEmpty, isTrue);
+      expect(results.first.getName().toLowerCase(), contains('emma'));
+    });
+
+    test('15. Search patients by email', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var results = receptionistService.searchPatients('wilson@email.com');
+      
+      expect(results, isList);
+      if (results.isNotEmpty) {
+        expect(results.first.getEmail().toLowerCase(), contains('wilson'));
+      }
+    });
+
+    test('16. Search patients by phone number', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var results = receptionistService.searchPatients('555-0301');
+      
+      expect(results, isList);
+      if (results.isNotEmpty) {
+        expect(results.first.getPhoneNumber(), contains('555-0301'));
+      }
+    });
+
+    test('17. Search patients by ID', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var results = receptionistService.searchPatients('pat-001');
+      
+      expect(results, isList);
+      if (results.isNotEmpty) {
+        expect(results.first.getId(), equals('pat-001'));
+      }
+    });
+
+    test('18. Search patients with no matches returns empty list', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var results = receptionistService.searchPatients('NonExistentPatient99999');
+      
+      expect(results, isList);
+      expect(results.isEmpty, isTrue);
+    });
+
+    test('19. Search is case insensitive', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var resultsLower = receptionistService.searchPatients('emma');
+      var resultsUpper = receptionistService.searchPatients('EMMA');
+      var resultsMixed = receptionistService.searchPatients('EmMa');
+      
+      expect(resultsLower.length, equals(resultsUpper.length));
+      expect(resultsLower.length, equals(resultsMixed.length));
+    });
+
+    test('20. Get patient by ID - existing patient', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var patient = receptionistService.getPatientById('pat-001');
+      
+      expect(patient, isNotNull);
+      expect(patient!.getId(), equals('pat-001'));
+      expect(patient.getName(), equals('Emma Wilson'));
+    });
+
+    test('21. Get patient by ID - non-existent patient', () {
+      ReceptionistService receptionistService = ReceptionistService();
+      
+      var patient = receptionistService.getPatientById('non-existent-id-12345');
+      
+      expect(patient, isNull);
+    });
+  });
+
+  group('Patient Service Tests - Reschedule Appointment', () {
+    setUp(() {
+      clearAppointments();
+    });
+
+    test('22. Request reschedule without login - uses AppointmentService', () {
+      AppointmentService appointmentService = AppointmentService();
+      
+      int uniqueDays = 300 + (DateTime.now().millisecondsSinceEpoch % 50);
+      DateTime appointmentDate = DateTime.now().add(Duration(days: uniqueDays));
+      appointmentService.scheduleAppointment(
+        'pat-001',
+        'doc-001',
+        appointmentDate,
+        AppointmentTimeSlot.MORNING_9_10,
+        AppointmentType.CONSULTATION,
+        'Reschedule test',
+      );
+
+      var allAppointments = appointmentService.checkAllAppointments();
+      var testAppointment = allAppointments.last;
+      appointmentService.updateStatus(
+        testAppointment.getAppointmentId(),
+        AppointmentStatus.APPROVED,
+      );
+
+      DateTime newDate = DateTime.now().add(Duration(days: uniqueDays + 5));
+      
+      try {
+        appointmentService.requestReschedule(
+          testAppointment.getAppointmentId(),
+          newDate,
+          AppointmentTimeSlot.AFTERNOON_2_3,
+        );
+        
+        var rescheduled = appointmentService.checkAppointment(testAppointment.getAppointmentId());
+        expect(rescheduled, isNotNull);
+        expect(rescheduled!.getStatus(), equals(AppointmentStatus.PENDING));
+      } catch (e) {
+        fail('Reschedule should succeed');
+      }
+    });
+
+    test('23. Reschedule appointment changes status to PENDING', () {
+      AppointmentService appointmentService = AppointmentService();
+      
+      int uniqueDays = 310 + (DateTime.now().millisecondsSinceEpoch % 50);
+      DateTime originalDate = DateTime.now().add(Duration(days: uniqueDays));
+      appointmentService.scheduleAppointment(
+        'pat-001',
+        'doc-001',
+        originalDate,
+        AppointmentTimeSlot.MORNING_10_11,
+        AppointmentType.CONSULTATION,
+        'Status change test',
+      );
+
+      var allAppointments = appointmentService.checkAllAppointments();
+      var testAppointment = allAppointments.last;
+      
+      // Approve the appointment first
+      appointmentService.updateStatus(
+        testAppointment.getAppointmentId(),
+        AppointmentStatus.APPROVED,
+      );
+      
+      var approved = appointmentService.checkAppointment(testAppointment.getAppointmentId());
+      expect(approved!.getStatus(), equals(AppointmentStatus.APPROVED));
+
+      // Request reschedule
+      DateTime newDate = DateTime.now().add(Duration(days: uniqueDays + 7));
+      try {
+        appointmentService.requestReschedule(
+          testAppointment.getAppointmentId(),
+          newDate,
+          AppointmentTimeSlot.AFTERNOON_3_4,
+        );
+
+        var rescheduled = appointmentService.checkAppointment(testAppointment.getAppointmentId());
+        expect(rescheduled, isNotNull);
+        expect(rescheduled!.getStatus(), equals(AppointmentStatus.PENDING));
+        expect(rescheduled.getTimeSlot(), equals(AppointmentTimeSlot.AFTERNOON_3_4));
+      } catch (e) {
+        fail('Reschedule should succeed');
+      }
+    });
+
+    test('24. Reschedule appointment updates date and time slot', () {
+      AppointmentService appointmentService = AppointmentService();
+      
+      int uniqueDays = 320 + (DateTime.now().millisecondsSinceEpoch % 50);
+      DateTime originalDate = DateTime.now().add(Duration(days: uniqueDays));
+      appointmentService.scheduleAppointment(
+        'pat-001',
+        'doc-002',
+        originalDate,
+        AppointmentTimeSlot.MORNING_8_9,
+        AppointmentType.FOLLOW_UP,
+        'Date time test',
+      );
+
+      var allAppointments = appointmentService.checkAllAppointments();
+      var testAppointment = allAppointments.last;
+      
+      DateTime newDate = DateTime.now().add(Duration(days: uniqueDays + 10));
+      try {
+        appointmentService.requestReschedule(
+          testAppointment.getAppointmentId(),
+          newDate,
+          AppointmentTimeSlot.AFTERNOON_4_5,
+        );
+
+        var rescheduled = appointmentService.checkAppointment(testAppointment.getAppointmentId());
+        expect(rescheduled, isNotNull);
+        expect(rescheduled!.getDateTime().day, equals(newDate.day));
+        expect(rescheduled.getDateTime().month, equals(newDate.month));
+        expect(rescheduled.getDateTime().year, equals(newDate.year));
+        expect(rescheduled.getTimeSlot(), equals(AppointmentTimeSlot.AFTERNOON_4_5));
+      } catch (e) {
+        fail('Reschedule should succeed');
+      }
+    });
+
+    test('25. Reschedule with conflicting time slot fails', () {
+      AppointmentService appointmentService = AppointmentService();
+      
+      int uniqueDays = 330 + (DateTime.now().millisecondsSinceEpoch % 50);
+      DateTime date1 = DateTime.now().add(Duration(days: uniqueDays));
+      DateTime date2 = DateTime.now().add(Duration(days: uniqueDays + 5));
+      
+      // Create first appointment
+      appointmentService.scheduleAppointment(
+        'pat-001',
+        'doc-001',
+        date1,
+        AppointmentTimeSlot.MORNING_9_10,
+        AppointmentType.CONSULTATION,
+        'First appointment',
+      );
+      
+      // Create second appointment
+      appointmentService.scheduleAppointment(
+        'pat-002',
+        'doc-001',
+        date2,
+        AppointmentTimeSlot.AFTERNOON_1_2,
+        AppointmentType.FOLLOW_UP,
+        'Second appointment',
+      );
+
+      var allAppointments = appointmentService.checkAllAppointments();
+      var secondAppointment = allAppointments.firstWhere(
+        (apt) => apt.getReason() == 'Second appointment',
+      );
+
+      // Try to reschedule second appointment to conflict with first
+      expect(() {
+        appointmentService.requestReschedule(
+          secondAppointment.getAppointmentId(),
+          date1,
+          AppointmentTimeSlot.MORNING_9_10,
+        );
+      }, throwsException);
+    });
+
+    test('26. Reschedule non-existent appointment fails', () {
+      AppointmentService appointmentService = AppointmentService();
+      
+      DateTime newDate = DateTime.now().add(Duration(days: 50));
+      
+      expect(() {
+        appointmentService.requestReschedule(
+          'non-existent-appointment-id',
+          newDate,
+          AppointmentTimeSlot.AFTERNOON_2_3,
+        );
+      }, throwsException);
+    });
+  });
 }
