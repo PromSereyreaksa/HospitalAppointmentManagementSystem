@@ -5,8 +5,6 @@ import '../lib/Service/patient_service.dart';
 import '../lib/Service/appointment_service.dart';
 import '../lib/Service/doctor_service.dart';
 import '../lib/Service/receptionist_service.dart';
-import '../lib/Data/repositories/user_repository.dart';
-import '../lib/Data/repositories/appointment_repository.dart';
 import '../lib/Domain/models/patient.dart';
 import '../lib/Domain/models/doctor.dart';
 import '../lib/Domain/enums/user.dart';

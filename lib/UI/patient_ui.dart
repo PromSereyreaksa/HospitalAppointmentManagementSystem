@@ -26,7 +26,8 @@ class PatientUI {
       print('3) View Upcoming Appointments');
       print('4) Search Appointment Details by ID');
       print('5) Request New Appointment');
-      print('6) Logout');
+      print('6) Reschedule Appointment');
+      print('7) Logout');
       stdout.write('Select option: ');
       String? choice = stdin.readLineSync();
       
@@ -41,6 +42,8 @@ class PatientUI {
       } else if (choice == '5') {
         requestAppointment(patient);
       } else if (choice == '6') {
+        rescheduleAppointment(patient);
+      } else if (choice == '7') {
         try {
           userService.logout();
           print('\n✓ Logged out successfully!');
@@ -249,6 +252,80 @@ class PatientUI {
       print('${"="*60}');
     } catch (e) {
       print('\n✗ Failed to request appointment: $e');
+    }
+  }
+
+  void rescheduleAppointment(Patient patient) {
+    print('\nReschedule Appointment');
+    
+    var myAppointments = patientService.viewOwnAppointments();
+    var upcomingApproved = myAppointments.where(
+      (apt) => apt.isUpcoming() && apt.isApproved()
+    ).toList();
+    
+    if (upcomingApproved.isEmpty) {
+      print('\n✗ No upcoming approved appointments to reschedule!');
+      return;
+    }
+
+    print('\nYour Upcoming Approved Appointments:');
+    for (int i = 0; i < upcomingApproved.length; i++) {
+      print('\n  ${i + 1}. ID: ${upcomingApproved[i].getAppointmentId()}');
+      print('     Date: ${upcomingApproved[i].getDateTime().toString().split('.')[0]}');
+      print('     Slot: ${upcomingApproved[i].getTimeSlot().toString().split('.')[1].replaceAll('_', ' ')}');
+      print('     Doctor: ${upcomingApproved[i].getDoctorId()}');
+    }
+
+    stdout.write('\nSelect appointment number: ');
+    String? aptChoice = stdin.readLineSync();
+    if (aptChoice == null) return;
+    int aptIndex = int.tryParse(aptChoice) ?? 0;
+    if (aptIndex < 1 || aptIndex > upcomingApproved.length) {
+      print('✗ Invalid appointment selection!');
+      return;
+    }
+    var selectedAppointment = upcomingApproved[aptIndex - 1];
+
+    stdout.write('\nEnter new date (YYYY-MM-DD): ');
+    String? dateStr = stdin.readLineSync();
+    if (dateStr == null) return;
+    DateTime? newDate = DateTime.tryParse(dateStr);
+    if (newDate == null) {
+      print('✗ Invalid date format!');
+      return;
+    }
+
+    print('\nAvailable Time Slots:');
+    print('  1. 8:00 AM - 9:00 AM');
+    print('  2. 9:00 AM - 10:00 AM');
+    print('  3. 10:00 AM - 11:00 AM');
+    print('  4. 1:00 PM - 2:00 PM');
+    print('  5. 2:00 PM - 3:00 PM');
+    print('  6. 3:00 PM - 4:00 PM');
+    print('  7. 4:00 PM - 5:00 PM');
+    stdout.write('\nSelect new time slot: ');
+    String? slotChoice = stdin.readLineSync();
+    if (slotChoice == null) return;
+    int slotIndex = int.tryParse(slotChoice) ?? 0;
+    if (slotIndex < 1 || slotIndex > 7) {
+      print('✗ Invalid slot selection!');
+      return;
+    }
+    AppointmentTimeSlot newTimeSlot = AppointmentTimeSlot.values[slotIndex - 1];
+
+    try {
+      appointmentService.requestReschedule(
+        selectedAppointment.getAppointmentId(),
+        newDate,
+        newTimeSlot,
+      );
+
+      print('\n${"="*60}');
+      print('  ✓ Reschedule request submitted successfully!');
+      print('  Status: PENDING (waiting for receptionist approval)');
+      print('${"="*60}');
+    } catch (e) {
+      print('\n✗ Failed to reschedule appointment: $e');
     }
   }
 }

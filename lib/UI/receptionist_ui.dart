@@ -18,28 +18,34 @@ class ReceptionistUI {
     while (true) {
       print('\nReceptionist Menu');
       print('1) Register New Patient');
-      print('2) View All Appointments');
-      print('3) View Pending Appointments');
-      print('4) View Appointments by User/Doctor ID');
-      print('5) Approve Appointment');
-      print('6) Deny Appointment');
-      print('7) Logout');
+      print('2) View All Patients');
+      print('3) Search Patients');
+      print('4) View All Appointments');
+      print('5) View Pending Appointments');
+      print('6) View Appointments by User/Doctor ID');
+      print('7) Approve Appointment');
+      print('8) Deny Appointment');
+      print('9) Logout');
       stdout.write('Select option: ');
       String? choice = stdin.readLineSync();
       
       if (choice == '1') {
         registerPatient();
       } else if (choice == '2') {
-        viewAllAppointments();
+        viewAllPatients();
       } else if (choice == '3') {
-        viewPendingAppointments();
+        searchPatients();
       } else if (choice == '4') {
-        viewAppointmentsByUserId();
+        viewAllAppointments();
       } else if (choice == '5') {
-        approveAppointment();
+        viewPendingAppointments();
       } else if (choice == '6') {
-        denyAppointment();
+        viewAppointmentsByUserId();
       } else if (choice == '7') {
+        approveAppointment();
+      } else if (choice == '8') {
+        denyAppointment();
+      } else if (choice == '9') {
         print('\n✓ Logged out successfully!');
         return;
       } else {
@@ -119,6 +125,61 @@ class ReceptionistUI {
     } catch (e) {
       print('\nFailed to register patient: $e');
     }
+  }
+
+  void viewAllPatients() {
+    var patients = receptionistService.viewAllPatients();
+    if (patients.isEmpty) {
+      print('\nNo patients registered.');
+      return;
+    }
+
+    print('\nAll Registered Patients');
+    print('${"="*60}');
+    for (int i = 0; i < patients.length; i++) {
+      print('\n[${i + 1}] Patient ID: ${patients[i].getId()}');
+      print('    Name: ${patients[i].getName()}');
+      print('    Email: ${patients[i].getEmail()}');
+      print('    Phone: ${patients[i].getPhoneNumber()}');
+      print('    DOB: ${patients[i].getDateOfBirth().toString().split(' ')[0]}');
+      print('    Gender: ${patients[i].getGender().toString().split('.')[1]}');
+      print('    Blood Type: ${patients[i].getBloodType().toString().split('.')[1]}');
+      print('    Address: ${patients[i].getAddress()}');
+      print('    ${"-"*58}');
+    }
+    print('${"="*60}');
+    print('Total Patients: ${patients.length}');
+  }
+
+  void searchPatients() {
+    stdout.write('\nEnter search term (name, email, ID, or phone): ');
+    String? searchTerm = stdin.readLineSync();
+    if (searchTerm == null || searchTerm.isEmpty) {
+      print('✗ Search term is required!');
+      return;
+    }
+
+    var results = receptionistService.searchPatients(searchTerm);
+    if (results.isEmpty) {
+      print('\nNo patients found matching "$searchTerm"');
+      return;
+    }
+
+    print('\nSearch Results for "$searchTerm"');
+    print('${"="*60}');
+    for (int i = 0; i < results.length; i++) {
+      print('\n[${i + 1}] Patient ID: ${results[i].getId()}');
+      print('    Name: ${results[i].getName()}');
+      print('    Email: ${results[i].getEmail()}');
+      print('    Phone: ${results[i].getPhoneNumber()}');
+      print('    DOB: ${results[i].getDateOfBirth().toString().split(' ')[0]}');
+      print('    Gender: ${results[i].getGender().toString().split('.')[1]}');
+      print('    Blood Type: ${results[i].getBloodType().toString().split('.')[1]}');
+      print('    Address: ${results[i].getAddress()}');
+      print('    ${"-"*58}');
+    }
+    print('${"="*60}');
+    print('Found ${results.length} patient(s)');
   }
 
   void viewAllAppointments() {

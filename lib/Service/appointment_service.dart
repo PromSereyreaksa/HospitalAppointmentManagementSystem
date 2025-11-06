@@ -109,6 +109,31 @@ class AppointmentService {
     }
   }
 
+  void requestReschedule(
+    String appointmentId,
+    DateTime newDateTime,
+    AppointmentTimeSlot newTimeSlot,
+  ) {
+    try {
+      for (int i = 0; i < appointments.length; i++) {
+        if (appointments[i].getAppointmentId() == appointmentId) {
+          if (checkConflict(
+              appointments[i].getDoctorId(), newDateTime, newTimeSlot)) {
+            throw Exception('Appointment conflict detected');
+          }
+          appointments[i] = appointments[i]
+              .copyWithDateTime(newDateTime, newTimeSlot)
+              .copyWithStatus(AppointmentStatus.PENDING);
+          appointmentRepository.saveAll(appointments);
+          return;
+        }
+      }
+      throw Exception('Appointment not found');
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void cancelAppointment(String appointmentId) {
     try {
       for (int i = 0; i < appointments.length; i++) {

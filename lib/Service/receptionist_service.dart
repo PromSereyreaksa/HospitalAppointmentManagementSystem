@@ -55,4 +55,27 @@ class ReceptionistService {
       rethrow;
     }
   }
+
+  List<Patient> viewAllPatients(){
+    return patients;
+  }
+
+  List<Patient> searchPatients(String searchTerm){
+    String lowerSearchTerm = searchTerm.toLowerCase();
+    return patients.where((patient) {
+      return patient.getName().toLowerCase().contains(lowerSearchTerm) ||
+          patient.getEmail().toLowerCase().contains(lowerSearchTerm) ||
+          patient.getId().toLowerCase().contains(lowerSearchTerm) ||
+          patient.getPhoneNumber().toLowerCase().contains(lowerSearchTerm);
+    }).toList();
+  }
+
+  Patient? getPatientById(String patientId){
+    for(int i = 0; i < patients.length; i++){
+      if(patients[i].getId() == patientId){
+        return patients[i];
+      }
+    }
+    return null;
+  }
 }
