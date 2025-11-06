@@ -90,8 +90,7 @@ class Appointment {
   }
 
   /// Checks if this appointment conflicts with the given doctor, date, and time slot
-  bool conflictsWith(
-      String doctorId, DateTime date, AppointmentTimeSlot timeSlot) {
+  bool conflictsWith(String doctorId, DateTime date, AppointmentTimeSlot timeSlot) {
     return _doctorId == doctorId && isSameDate(date) && _timeSlot == timeSlot;
   }
 

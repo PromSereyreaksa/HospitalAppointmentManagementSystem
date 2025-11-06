@@ -7,7 +7,7 @@ import '../../Domain/models/receptionist.dart';
 import '../../Domain/enums/user.dart';
 import '../../Domain/enums/blood_type.dart';
 import '../../Domain/enums/staff.dart';
-import '../../Domain/enums/sepcialty.dart';
+import '../../Domain/enums/specialty.dart';
 
 class UserRepository {
   final String filePath = 'lib/Data/storage/users.json';

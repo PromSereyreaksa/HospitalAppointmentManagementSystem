@@ -3,7 +3,7 @@ import 'dart:io';
 import '../../Domain/models/doctor.dart';
 import '../../Domain/enums/user.dart';
 import '../../Domain/enums/staff.dart';
-import '../../Domain/enums/sepcialty.dart';
+import '../../Domain/enums/specialty.dart';
 
 class DoctorRepository {
   final String filePath = 'lib/Data/storage/doctors.json';

@@ -24,7 +24,7 @@ class PatientUI {
       print('1) View My Details');
       print('2) View My Appointments');
       print('3) View Upcoming Appointments');
-      print('4) View Appointment Details by ID');
+      print('4) Search Appointment Details by ID');
       print('5) Request New Appointment');
       print('6) Logout');
       stdout.write('Select option: ');

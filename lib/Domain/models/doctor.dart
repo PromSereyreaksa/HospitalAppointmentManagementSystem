@@ -1,6 +1,6 @@
 import '../enums/user.dart';
 import '../enums/staff.dart';
-import '../enums/sepcialty.dart';
+import '../enums/specialty.dart';
 import 'staff.dart';
 
 class Doctor extends Staff {
