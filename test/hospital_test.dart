@@ -14,24 +14,57 @@ import '../lib/Domain/enums/blood_type.dart';
 import '../lib/Domain/enums/appointment.dart';
 
 void main() {
-  // Backup file path
+  // File paths for all data that needs backup
   final String appointmentsPath = 'lib/Data/storage/appointments.json';
-  final String backupPath = 'lib/Data/storage/appointments_backup.json';
+  final String patientsPath = 'lib/Data/storage/patients.json';
+  final String usersPath = 'lib/Data/storage/users.json';
 
-  // Backup appointments before all tests
+  final String appointmentsBackupPath = 'lib/Data/storage/appointments_backup.json';
+  final String patientsBackupPath = 'lib/Data/storage/patients_backup.json';
+  final String usersBackupPath = 'lib/Data/storage/users_backup.json';
+
+  // Backup all data files before tests start
   setUpAll(() {
+    // Backup appointments
     File appointmentsFile = File(appointmentsPath);
     if (appointmentsFile.existsSync()) {
-      appointmentsFile.copySync(backupPath);
+      appointmentsFile.copySync(appointmentsBackupPath);
+    }
+
+    // Backup patients
+    File patientsFile = File(patientsPath);
+    if (patientsFile.existsSync()) {
+      patientsFile.copySync(patientsBackupPath);
+    }
+
+    // Backup users
+    File usersFile = File(usersPath);
+    if (usersFile.existsSync()) {
+      usersFile.copySync(usersBackupPath);
     }
   });
 
-  // Restore appointments after all tests
+  // Restore all data files after tests complete
   tearDownAll(() {
-    File backupFile = File(backupPath);
-    if (backupFile.existsSync()) {
-      backupFile.copySync(appointmentsPath);
-      backupFile.deleteSync();
+    // Restore appointments
+    File appointmentsBackup = File(appointmentsBackupPath);
+    if (appointmentsBackup.existsSync()) {
+      appointmentsBackup.copySync(appointmentsPath);
+      appointmentsBackup.deleteSync();
+    }
+
+    // Restore patients
+    File patientsBackup = File(patientsBackupPath);
+    if (patientsBackup.existsSync()) {
+      patientsBackup.copySync(patientsPath);
+      patientsBackup.deleteSync();
+    }
+
+    // Restore users
+    File usersBackup = File(usersBackupPath);
+    if (usersBackup.existsSync()) {
+      usersBackup.copySync(usersPath);
+      usersBackup.deleteSync();
     }
   });
 
@@ -46,26 +79,31 @@ void main() {
   group('Authentication Tests', () {
     test('1. Valid doctor login', () {
       UserService userService = UserService();
-      bool result = userService.login('john.smith@hospital.com', 'doctor123');
-      expect(result, isTrue);
-      expect(userService.getCurrentUser(), isNotNull);
-      expect(userService.getCurrentUser()!.getRole(), equals(UserRole.DOCTOR));
+      try {
+        userService.login('john.smith@hospital.com', 'doctor123');
+        expect(userService.getCurrentUser(), isNotNull);
+        expect(userService.getCurrentUser()!.getRole(), equals(UserRole.DOCTOR));
+      } catch (e) {
+        fail('Login should succeed');
+      }
     });
 
     test('2. Valid receptionist login', () {
       UserService userService = UserService();
-      bool result =
-          userService.login('alice.williams@hospital.com', 'receptionist123');
-      expect(result, isTrue);
-      expect(userService.getCurrentUser(), isNotNull);
-      expect(userService.getCurrentUser()!.getRole(),
-          equals(UserRole.RECEPTIONIST));
+      try {
+        userService.login('alice.williams@hospital.com', 'receptionist123');
+        expect(userService.getCurrentUser(), isNotNull);
+        expect(userService.getCurrentUser()!.getRole(),
+            equals(UserRole.RECEPTIONIST));
+      } catch (e) {
+        fail('Login should succeed');
+      }
     });
 
     test('3. Invalid credentials login', () {
       UserService userService = UserService();
-      bool result = userService.login('invalid@hospital.com', 'wrongpassword');
-      expect(result, isFalse);
+      expect(() => userService.login('invalid@hospital.com', 'wrongpassword'),
+          throwsException);
       expect(userService.getCurrentUser(), isNull);
     });
   });
@@ -81,45 +119,57 @@ void main() {
       String testEmail =
           'testpatient_${DateTime.now().millisecondsSinceEpoch}@test.com';
 
-      bool result = receptionistService.registerPatient(
-        'Test Patient',
-        testEmail,
-        'password123',
-        '555-9999',
-        DateTime(1990, 1, 1),
-        Gender.MALE,
-        BloodType.A,
-        '123 Test Street',
-      );
+      try {
+        receptionistService.registerPatient(
+          'Test Patient',
+          testEmail,
+          'password123',
+          '555-9999',
+          DateTime(1990, 1, 1),
+          Gender.MALE,
+          BloodType.A,
+          '123 Test Street',
+        );
 
-      expect(result, isTrue);
-
-      // Verify the patient was added to users
-      UserService userService = UserService();
-      bool loginResult = userService.login(testEmail, 'password123');
-      expect(loginResult, isTrue);
+        UserService userService = UserService();
+        userService.login(testEmail, 'password123');
+        expect(userService.getCurrentUser(), isNotNull);
+      } catch (e) {
+        fail('Registration and login should succeed');
+      }
     });
 
     test('5. Duplicate email registration fails', () {
       ReceptionistService receptionistService = ReceptionistService();
 
-      // Try to register with an existing email
-      bool result = receptionistService.registerPatient(
+      expect(() => receptionistService.registerPatient(
         'Another Patient',
-        'emma.wilson@email.com', // This email already exists in patients.json
+        'emma.wilson@email.com',
         'password123',
         '555-8888',
         DateTime(1995, 5, 5),
         Gender.FEMALE,
         BloodType.B,
         '456 Test Avenue',
-      );
+      ), throwsException);
+    });
 
-      expect(result, isFalse);
+    test('5a. Invalid email format registration fails', () {
+      ReceptionistService receptionistService = ReceptionistService();
+
+      expect(() => receptionistService.registerPatient(
+        'Test Patient',
+        'invalidemail',
+        'password123',
+        '555-7777',
+        DateTime(1990, 1, 1),
+        Gender.MALE,
+        BloodType.A,
+        '789 Test Road',
+      ), throwsException);
     });
 
     test('6. Request appointment successfully', () {
-      // Create a patient service and set current patient
       PatientService patientService = PatientService();
 
       Patient testPatient = Patient(
@@ -136,15 +186,17 @@ void main() {
 
       patientService.setCurrentPatient(testPatient);
 
-      bool result = patientService.requestAppointment(
-        'doc-001', // Dr. John Smith
-        DateTime.now().add(Duration(days: 7)),
-        AppointmentTimeSlot.MORNING_9_10,
-        AppointmentType.CONSULTATION,
-        'Regular checkup',
-      );
-
-      expect(result, isTrue);
+      try {
+        patientService.requestAppointment(
+          'doc-001',
+          DateTime.now().add(Duration(days: 7)),
+          AppointmentTimeSlot.MORNING_9_10,
+          AppointmentType.CONSULTATION,
+          'Regular checkup',
+        );
+      } catch (e) {
+        fail('Request appointment should succeed');
+      }
     });
   });
 
@@ -156,58 +208,55 @@ void main() {
     test('7. Schedule appointment without conflict', () {
       AppointmentService appointmentService = AppointmentService();
 
-      // Use unique timestamp-based offset to avoid conflicts between test runs
       int uniqueDays = 100 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime futureDate = DateTime.now().add(Duration(days: uniqueDays));
 
-      bool result = appointmentService.scheduleAppointment(
-        'pat-001',
-        'doc-002', // Dr. Sarah Johnson
-        futureDate,
-        AppointmentTimeSlot.MORNING_10_11,
-        AppointmentType.ROUTINE_CHECKUP,
-        'Annual physical',
-      );
-
-      expect(result, isTrue);
+      try {
+        appointmentService.scheduleAppointment(
+          'pat-001',
+          'doc-002',
+          futureDate,
+          AppointmentTimeSlot.MORNING_10_11,
+          AppointmentType.ROUTINE_CHECKUP,
+          'Annual physical',
+        );
+      } catch (e) {
+        fail('Schedule appointment should succeed');
+      }
     });
 
     test('8. Detect time slot conflict', () {
       AppointmentService appointmentService = AppointmentService();
 
-      // Use unique timestamp-based offset to avoid conflicts between test runs
       int uniqueDays = 150 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime conflictDate = DateTime.now().add(Duration(days: uniqueDays));
 
-      // Schedule first appointment
-      bool firstResult = appointmentService.scheduleAppointment(
-        'pat-001',
-        'doc-003', // Dr. Michael Brown
+      try {
+        appointmentService.scheduleAppointment(
+          'pat-001',
+          'doc-003',
+          conflictDate,
+          AppointmentTimeSlot.AFTERNOON_3_4,
+          AppointmentType.CONSULTATION,
+          'First appointment',
+        );
+      } catch (e) {
+        fail('First appointment should succeed');
+      }
+
+      expect(() => appointmentService.scheduleAppointment(
+        'pat-002',
+        'doc-003',
         conflictDate,
         AppointmentTimeSlot.AFTERNOON_3_4,
-        AppointmentType.CONSULTATION,
-        'First appointment',
-      );
-
-      expect(firstResult, isTrue);
-
-      // Try to schedule conflicting appointment (same doctor, date, time slot)
-      bool conflictResult = appointmentService.scheduleAppointment(
-        'pat-002',
-        'doc-003', // Same doctor
-        conflictDate, // Same date
-        AppointmentTimeSlot.AFTERNOON_3_4, // Same time slot
         AppointmentType.FOLLOW_UP,
         'Conflicting appointment',
-      );
-
-      expect(conflictResult, isFalse);
+      ), throwsException);
     });
 
     test('9. Update appointment status to APPROVED', () {
       AppointmentService appointmentService = AppointmentService();
 
-      // Schedule an appointment first
       int uniqueDays = 20 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime appointmentDate = DateTime.now().add(Duration(days: uniqueDays));
       appointmentService.scheduleAppointment(
@@ -219,29 +268,28 @@ void main() {
         'Status update test',
       );
 
-      // Get the appointment we just created
       var allAppointments = appointmentService.checkAllAppointments();
       var testAppointment = allAppointments.last;
 
-      bool result = appointmentService.updateStatus(
-        testAppointment.getAppointmentId(),
-        AppointmentStatus.APPROVED,
-      );
+      try {
+        appointmentService.updateStatus(
+          testAppointment.getAppointmentId(),
+          AppointmentStatus.APPROVED,
+        );
 
-      expect(result, isTrue);
-
-      // Verify status was updated
-      var updatedAppointment = appointmentService
-          .checkAppointment(testAppointment.getAppointmentId());
-      expect(updatedAppointment, isNotNull);
-      expect(
-          updatedAppointment!.getStatus(), equals(AppointmentStatus.APPROVED));
+        var updatedAppointment = appointmentService
+            .checkAppointment(testAppointment.getAppointmentId());
+        expect(updatedAppointment, isNotNull);
+        expect(
+            updatedAppointment!.getStatus(), equals(AppointmentStatus.APPROVED));
+      } catch (e) {
+        fail('Update status should succeed');
+      }
     });
 
     test('10. Cancel appointment', () {
       AppointmentService appointmentService = AppointmentService();
 
-      // Schedule an appointment first
       int uniqueDays = 25 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime appointmentDate = DateTime.now().add(Duration(days: uniqueDays));
       appointmentService.scheduleAppointment(
@@ -253,23 +301,23 @@ void main() {
         'Cancellation test',
       );
 
-      // Get the appointment we just created
       var allAppointments = appointmentService.checkAllAppointments();
       int initialCount = allAppointments.length;
       var testAppointment = allAppointments.last;
 
-      bool result = appointmentService
-          .cancelAppointment(testAppointment.getAppointmentId());
+      try {
+        appointmentService
+            .cancelAppointment(testAppointment.getAppointmentId());
 
-      expect(result, isTrue);
+        var updatedAppointments = appointmentService.checkAllAppointments();
+        expect(updatedAppointments.length, equals(initialCount - 1));
 
-      // Verify appointment was removed
-      var updatedAppointments = appointmentService.checkAllAppointments();
-      expect(updatedAppointments.length, equals(initialCount - 1));
-
-      var cancelledAppointment = appointmentService
-          .checkAppointment(testAppointment.getAppointmentId());
-      expect(cancelledAppointment, isNull);
+        var cancelledAppointment = appointmentService
+            .checkAppointment(testAppointment.getAppointmentId());
+        expect(cancelledAppointment, isNull);
+      } catch (e) {
+        fail('Cancel appointment should succeed');
+      }
     });
   });
 
@@ -282,7 +330,6 @@ void main() {
       AppointmentService appointmentService = AppointmentService();
       UserService userService = UserService();
 
-      // Schedule an appointment for the doctor
       int uniqueDays = 30 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime appointmentDate = DateTime.now().add(Duration(days: uniqueDays));
       appointmentService.scheduleAppointment(
@@ -297,36 +344,33 @@ void main() {
       var allAppointments = appointmentService.checkAllAppointments();
       var testAppointment = allAppointments.last;
 
-      // Create DoctorService AFTER appointment is scheduled
       DoctorService doctorService = DoctorService();
 
-      // Login as doctor
       userService.login('john.smith@hospital.com', 'doctor123');
       var doctor = userService.getCurrentUser();
       doctorService.setCurrentDoctor(doctor as Doctor);
 
-      // Add notes
-      bool result = doctorService.addAppointmentNotes(
-        testAppointment.getAppointmentId(),
-        'Patient shows good progress',
-      );
+      try {
+        doctorService.addAppointmentNotes(
+          testAppointment.getAppointmentId(),
+          'Patient shows good progress',
+        );
 
-      expect(result, isTrue);
-
-      // Reload to verify notes were added
-      AppointmentService verifyService = AppointmentService();
-      var updatedAppointment =
-          verifyService.checkAppointment(testAppointment.getAppointmentId());
-      expect(updatedAppointment, isNotNull);
-      expect(updatedAppointment!.getNotes(),
-          contains('Patient shows good progress'));
+        AppointmentService verifyService = AppointmentService();
+        var updatedAppointment =
+            verifyService.checkAppointment(testAppointment.getAppointmentId());
+        expect(updatedAppointment, isNotNull);
+        expect(updatedAppointment!.getNotes(),
+            contains('Patient shows good progress'));
+      } catch (e) {
+        fail('Add notes should succeed');
+      }
     });
 
     test('12. Update appointment notes', () {
       AppointmentService appointmentService = AppointmentService();
       UserService userService = UserService();
 
-      // Schedule an appointment
       int uniqueDays = 200 + (DateTime.now().millisecondsSinceEpoch % 50);
       DateTime appointmentDate = DateTime.now().add(Duration(days: uniqueDays));
       appointmentService.scheduleAppointment(
@@ -341,35 +385,32 @@ void main() {
       var allAppointments = appointmentService.checkAllAppointments();
       var testAppointment = allAppointments.last;
 
-      // Create DoctorService AFTER appointment is scheduled
       DoctorService doctorService = DoctorService();
 
-      // Login as doctor
       userService.login('sarah.johnson@hospital.com', 'doctor123');
       var doctor = userService.getCurrentUser();
       doctorService.setCurrentDoctor(doctor as Doctor);
 
-      // Add initial notes
       doctorService.addAppointmentNotes(
         testAppointment.getAppointmentId(),
         'Initial notes',
       );
 
-      // Update notes
-      bool result = doctorService.updateAppointmentNotes(
-        testAppointment.getAppointmentId(),
-        'Updated notes with new information',
-      );
+      try {
+        doctorService.updateAppointmentNotes(
+          testAppointment.getAppointmentId(),
+          'Updated notes with new information',
+        );
 
-      expect(result, isTrue);
-
-      // Reload to verify notes were updated
-      AppointmentService verifyService = AppointmentService();
-      var updatedAppointment =
-          verifyService.checkAppointment(testAppointment.getAppointmentId());
-      expect(updatedAppointment, isNotNull);
-      expect(updatedAppointment!.getNotes(),
-          equals('Updated notes with new information'));
+        AppointmentService verifyService = AppointmentService();
+        var updatedAppointment =
+            verifyService.checkAppointment(testAppointment.getAppointmentId());
+        expect(updatedAppointment, isNotNull);
+        expect(updatedAppointment!.getNotes(),
+            equals('Updated notes with new information'));
+      } catch (e) {
+        fail('Update notes should succeed');
+      }
     });
   });
 

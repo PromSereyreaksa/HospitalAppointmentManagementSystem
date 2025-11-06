@@ -41,8 +41,12 @@ class PatientUI {
       } else if (choice == '5') {
         requestAppointment(patient);
       } else if (choice == '6') {
-        userService.logout();
-        print('\n✓ Logged out successfully!');
+        try {
+          userService.logout();
+          print('\n✓ Logged out successfully!');
+        } catch (e) {
+          print('\n✗ Logout failed: $e');
+        }
         return;
       } else {
         print('\n✗ Invalid option! Please try again.');
@@ -67,11 +71,12 @@ class PatientUI {
   }
 
   void viewPatientAppointments(Patient patient) {
-    var appointments = patientService.viewOwnAppointments();
-    if (appointments.isEmpty) {
-      print('\nNo appointments found!');
-      return;
-    }
+    try {
+      var appointments = patientService.viewOwnAppointments();
+      if (appointments.isEmpty) {
+        print('\nNo appointments found!');
+        return;
+      }
     print('\nMy Appointments');
     for (int i = 0; i < appointments.length; i++) {
       String status = appointments[i].getStatus().toString().split('.')[1];
@@ -87,6 +92,9 @@ class PatientUI {
       }
     }
     print('${"="*60}');
+    } catch (e) {
+      print('\n✗ Error viewing appointments: $e');
+    }
   }
 
   void viewUpcomingAppointments(Patient patient) {
@@ -226,21 +234,21 @@ class PatientUI {
       return;
     }
 
-    bool success = patientService.requestAppointment(
-      selectedDoctor.getId(),
-      date,
-      timeSlot,
-      type,
-      reason,
-    );
-    
-    if (success) {
+    try {
+      patientService.requestAppointment(
+        selectedDoctor.getId(),
+        date,
+        timeSlot,
+        type,
+        reason,
+      );
+
       print('\n${"="*60}');
       print('  ✓ Appointment requested successfully!');
       print('  Status: PENDING (waiting for receptionist approval)');
       print('${"="*60}');
-    } else {
-      print('\n✗ Failed to request appointment!');
+    } catch (e) {
+      print('\n✗ Failed to request appointment: $e');
     }
   }
 }

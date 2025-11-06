@@ -48,11 +48,13 @@ class DoctorUI {
   }
 
   void viewDoctorSchedule(Doctor doctor) {
-    var schedule = doctorService.viewOwnSchedule();
-    if (schedule.isEmpty) {
-      print('\nNo appointments in your schedule.');
-      return;
-    }
+    try {
+      var schedule = doctorService.viewOwnSchedule();
+      if (schedule.isEmpty) {
+        print('\nNo appointments in your schedule.');
+        return;
+      }
+      
     print('\nMy Schedule');
     for (int i = 0; i < schedule.length; i++) {
       String status = schedule[i].getStatus().toString().split('.')[1];
@@ -69,6 +71,9 @@ class DoctorUI {
       }
     }
     print('${"="*60}');
+    } catch (e) {
+      print('\n✗ Error viewing schedule: $e');
+    }
   }
 
   void viewUpcomingAppointments(Doctor doctor) {
@@ -144,11 +149,11 @@ class DoctorUI {
       print('✗ Notes are required!');
       return;
     }
-    bool success = doctorService.addAppointmentNotes(appointmentId, notes);
-    if (success) {
+    try {
+      doctorService.addAppointmentNotes(appointmentId, notes);
       print('\n✓ Notes added successfully!');
-    } else {
-      print('\n✗ Failed to add notes! (Check appointment ID and permissions)');
+    } catch (e) {
+      print('\n✗ Failed to add notes: $e');
     }
   }
 
@@ -165,11 +170,11 @@ class DoctorUI {
       print('✗ Notes are required!');
       return;
     }
-    bool success = doctorService.updateAppointmentNotes(appointmentId, notes);
-    if (success) {
+    try {
+      doctorService.updateAppointmentNotes(appointmentId, notes);
       print('\n✓ Notes updated successfully!');
-    } else {
-      print('\n✗ Failed to update notes! (Check appointment ID and permissions)');
+    } catch (e) {
+      print('\n✗ Failed to update notes: $e');
     }
   }
 

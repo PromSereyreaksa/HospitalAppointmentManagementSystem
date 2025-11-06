@@ -10,22 +10,30 @@ class UserService {
     users = userRepository.loadAll();
   }
 
-  bool login(String email, String password) {
-    for (int i = 0; i < users.length; i++) {
-      if (users[i].getEmail() == email && users[i].getPassword() == password) {
-        currentUser = users[i];
-        return true;
+  void login(String email, String password) {
+    try {
+      for (int i = 0; i < users.length; i++) {
+        if (users[i].hasEmail(email) && users[i].authenticate(password)) {
+          currentUser = users[i];
+          return;
+        }
       }
+      throw Exception('Invalid email or password');
+    } catch (e) {
+      rethrow;
     }
-    return false;
   }
 
-  bool logout() {
-    if (currentUser != null) {
-      currentUser = null;
-      return true;
+  void logout() {
+    try {
+      if (currentUser != null) {
+        currentUser = null;
+        return;
+      }
+      throw Exception('No user is currently logged in');
+    } catch (e) {
+      rethrow;
     }
-    return false;
   }
 
   User? getCurrentUser() {

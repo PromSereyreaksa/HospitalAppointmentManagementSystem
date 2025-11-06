@@ -47,4 +47,9 @@ class Doctor extends Staff {
   void setAvailability(bool availability) {
     _availability = availability;
   }
+
+  /// Checks if this doctor is currently available to accept appointments
+  bool isAvailable() {
+    return _availability;
+  }
 }

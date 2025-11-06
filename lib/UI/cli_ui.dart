@@ -20,11 +20,11 @@ class CliUI {
   final DoctorService doctorService = DoctorService();
   final ReceptionistService receptionistService = ReceptionistService();
   final AppointmentService appointmentService = AppointmentService();
-  
+
   late final PatientUI patientUI;
   late final DoctorUI doctorUI;
   late final ReceptionistUI receptionistUI;
-  
+
   CliUI() {
     patientUI = PatientUI(
       patientService: patientService,
@@ -54,11 +54,11 @@ class CliUI {
       print('2) Exit');
       stdout.write('Select option (1-2): ');
       String? choice = stdin.readLineSync();
-      
+
       if (choice == '1') {
         loginMenu();
       } else if (choice == '2') {
-  print('\nThank you — Goodbye!\n');
+        print('\nThank you — Goodbye!\n');
         exit(0);
       } else {
         print('\nInvalid option — please try again.');
@@ -67,36 +67,39 @@ class CliUI {
   }
 
   void loginMenu() {
-  print('\nLogin');
-  stdout.write('Email: ');
+    print('\nLogin');
+    stdout.write('Email: ');
     String? email = stdin.readLineSync();
-  stdout.write('Password: ');
+    stdout.write('Password: ');
     String? password = stdin.readLineSync();
-    
-    if (email == null || password == null || email.isEmpty || password.isEmpty) {
+
+    if (email == null ||
+        password == null ||
+        email.isEmpty ||
+        password.isEmpty) {
       print('\n✗ Email and password are required!');
       return;
     }
-    
-    bool success = userService.login(email, password);
-    if (success) {
+
+    try {
+      userService.login(email, password);
       User? user = userService.getCurrentUser();
       if (user == null) {
         print('\nLogin failed!');
         return;
       }
       print('\nLogin successful! Welcome ${user.getName()}');
-      
+
       if (user.getRole() == UserRole.PATIENT) {
         patientService.setCurrentPatient(user as Patient);
-        patientUI.showPatientMenu(user as Patient);
+        patientUI.showPatientMenu(user);
       } else if (user.getRole() == UserRole.DOCTOR) {
         doctorService.setCurrentDoctor(user as Doctor);
-        doctorUI.showDoctorMenu(user as Doctor);
+        doctorUI.showDoctorMenu(user);
       } else if (user.getRole() == UserRole.RECEPTIONIST) {
         receptionistUI.showReceptionistMenu();
       }
-    } else {
+    } catch (e) {
       print('\nInvalid email or password — please try again.');
     }
   }

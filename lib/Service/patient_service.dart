@@ -18,46 +18,52 @@ class PatientService {
   }
 
   List<Appointment> viewOwnAppointments() {
-    if (currentPatient == null) {
-      return [];
-    }
-    List<Appointment> patientAppointments = [];
-    for (int i = 0; i < appointments.length; i++) {
-      if (appointments[i].getPatientId() == currentPatient!.getId()) {
-        patientAppointments.add(appointments[i]);
+    try {
+      if (currentPatient == null) {
+        throw Exception('No patient is currently logged in');
       }
+      return appointments
+          .where(
+              (appointment) => appointment.getPatientId() == currentPatient!.getId())
+          .toList();
+    } catch (e) {
+      rethrow;
     }
-    return patientAppointments;
   }
 
   Patient? viewOwnDetails() {
     return currentPatient;
   }
 
-  bool requestAppointment(
+  void requestAppointment(
     String doctorId,
     DateTime dateTime,
     AppointmentTimeSlot timeSlot,
     AppointmentType type,
     String reason,
   ) {
-    if (currentPatient == null) {
-      return false;
+    try {
+      if (currentPatient == null) {
+        throw Exception('No patient is currently logged in');
+      }
+      String appointmentId = UuidHelper.generateUuid();
+
+      Appointment newAppointment = Appointment(
+        appointmentId: appointmentId,
+        patientId: currentPatient!.getId(),
+        doctorId: doctorId,
+        dateTime: dateTime,
+        timeSlot: timeSlot,
+        status: AppointmentStatus.PENDING,
+        type: type,
+        notes: '',
+        reason: reason,
+      );
+
+      appointments.add(newAppointment);
+      appointmentRepository.saveAll(appointments);
+    } catch (e) {
+      rethrow;
     }
-    String appointmentId = UuidHelper.generateUuid();
-    Appointment newAppointment = Appointment(
-      appointmentId: appointmentId,
-      patientId: currentPatient!.getId(),
-      doctorId: doctorId,
-      dateTime: dateTime,
-      timeSlot: timeSlot,
-      status: AppointmentStatus.PENDING,
-      type: type,
-      notes: '',
-      reason: reason,
-    );
-    appointments.add(newAppointment);
-    appointmentRepository.saveAll(appointments);
-    return true;
   }
 }

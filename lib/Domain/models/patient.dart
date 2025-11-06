@@ -36,4 +36,9 @@ class Patient extends User {
   String getAddress() {
     return _address;
   }
+
+  /// Validates if an email address is in a valid format
+  static bool isValidEmail(String email) {
+    return email.contains('@') && email.length > 3;
+  }
 }

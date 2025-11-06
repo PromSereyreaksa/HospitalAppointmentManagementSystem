@@ -17,7 +17,7 @@ class ReceptionistService {
     users = userRepository.loadAll();
   }
 
-  bool registerPatient(
+  void registerPatient(
     String name,
     String email,
     String password,
@@ -27,27 +27,32 @@ class ReceptionistService {
     BloodType bloodType,
     String address,
   ) {
-    for (int i = 0; i < patients.length; i++) {
-      if (patients[i].getEmail() == email) {
-        return false;
+    try {
+      if (!Patient.isValidEmail(email)) {
+        throw Exception('Invalid email format');
       }
+
+      if (patients.any((patient) => patient.hasEmail(email))) {
+        throw Exception('Email already exists');
+      }
+      String patientId = UuidHelper.generateUuid();
+      Patient newPatient = Patient(
+        id: patientId,
+        password: password,
+        name: name,
+        email: email,
+        phoneNumber: phoneNumber,
+        dateOfBirth: dateOfBirth,
+        gender: gender,
+        bloodType: bloodType,
+        address: address,
+      );
+      patients.add(newPatient);
+      users.add(newPatient);
+      patientRepository.saveAll(patients);
+      userRepository.saveAll(users);
+    } catch (e) {
+      rethrow;
     }
-    String patientId = UuidHelper.generateUuid();
-    Patient newPatient = Patient(
-      id: patientId,
-      password: password,
-      name: name,
-      email: email,
-      phoneNumber: phoneNumber,
-      dateOfBirth: dateOfBirth,
-      gender: gender,
-      bloodType: bloodType,
-      address: address,
-    );
-    patients.add(newPatient);
-    users.add(newPatient);
-    patientRepository.saveAll(patients);
-    userRepository.saveAll(users);
-    return true;
   }
 }

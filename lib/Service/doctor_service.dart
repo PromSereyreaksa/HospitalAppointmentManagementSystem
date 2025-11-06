@@ -16,74 +16,63 @@ class DoctorService {
   }
 
   List<Appointment> viewOwnSchedule() {
-    if (currentDoctor == null) {
-      return [];
-    }
-    // AI generated
-    List<Appointment> doctorSchedule = [];
-    for (int i = 0; i < appointments.length; i++) {
-      if (appointments[i].getDoctorId() == currentDoctor!.getId()) {
-        doctorSchedule.add(appointments[i]);
+    try {
+      if (currentDoctor == null) {
+        throw Exception('No doctor is currently logged in');
       }
+      return appointments
+          .where((appointment) => appointment.getDoctorId() == currentDoctor!.getId())
+          .toList();
+    } catch (e) {
+      rethrow;
     }
-    return doctorSchedule;
   }
 
-  bool addAppointmentNotes(String appointmentId, String notes) {
-    for (int i = 0; i < appointments.length; i++) {
-      if (appointments[i].getAppointmentId() == appointmentId) {
-        if (appointments[i].getDoctorId() == currentDoctor?.getId()) {
-          String currentNotes = appointments[i].getNotes();
-          String newNotes =
-              currentNotes.isEmpty ? notes : currentNotes + '\n' + notes;
-          Appointment updatedAppointment = Appointment(
-            appointmentId: appointments[i].getAppointmentId(),
-            patientId: appointments[i].getPatientId(),
-            doctorId: appointments[i].getDoctorId(),
-            dateTime: appointments[i].getDateTime(),
-            timeSlot: appointments[i].getTimeSlot(),
-            status: appointments[i].getStatus(),
-            type: appointments[i].getType(),
-            notes: newNotes,
-            reason: appointments[i].getReason(),
-          );
-          appointments[i] = updatedAppointment;
-          appointmentRepository.saveAll(appointments);
-          return true;
+  void addAppointmentNotes(String appointmentId, String notes) {
+    try {
+      for (int i = 0; i < appointments.length; i++) {
+        if (appointments[i].getAppointmentId() == appointmentId) {
+          if (appointments[i].getDoctorId() == (currentDoctor?.getId() ?? '')) {
+            String currentNotes = appointments[i].getNotes();
+            String newNotes =
+                currentNotes.isEmpty ? notes : currentNotes + '\n' + notes;
+            appointments[i] = appointments[i].copyWithNotes(newNotes);
+            appointmentRepository.saveAll(appointments);
+            return;
+          }
         }
       }
+      throw Exception('Appointment not found or not authorized');
+    } catch (e) {
+      rethrow;
     }
-    return false;
   }
 
-  bool updateAppointmentNotes(String appointmentId, String notes) {
-    for (int i = 0; i < appointments.length; i++) {
-      if (appointments[i].getAppointmentId() == appointmentId) {
-        if (appointments[i].getDoctorId() == currentDoctor?.getId()) {
-          Appointment updatedAppointment = Appointment(
-            appointmentId: appointments[i].getAppointmentId(),
-            patientId: appointments[i].getPatientId(),
-            doctorId: appointments[i].getDoctorId(),
-            dateTime: appointments[i].getDateTime(),
-            timeSlot: appointments[i].getTimeSlot(),
-            status: appointments[i].getStatus(),
-            type: appointments[i].getType(),
-            notes: notes,
-            reason: appointments[i].getReason(),
-          );
-          appointments[i] = updatedAppointment;
-          appointmentRepository.saveAll(appointments);
-          return true;
+  void updateAppointmentNotes(String appointmentId, String notes) {
+    try {
+      for (int i = 0; i < appointments.length; i++) {
+        if (appointments[i].getAppointmentId() == appointmentId) {
+          if (appointments[i].getDoctorId() == (currentDoctor?.getId() ?? '')) {
+            appointments[i] = appointments[i].copyWithNotes(notes);
+            appointmentRepository.saveAll(appointments);
+            return;
+          }
         }
       }
+      throw Exception('Appointment not found or not authorized');
+    } catch (e) {
+      rethrow;
     }
-    return false;
   }
 
   bool isAvailable() {
-    if (currentDoctor == null) {
-      return false;
+    try {
+      if (currentDoctor == null) {
+        throw Exception('No doctor is currently logged in');
+      }
+      return currentDoctor!.isAvailable();
+    } catch (e) {
+      rethrow;
     }
-    return currentDoctor!.getAvailability();
   }
 }

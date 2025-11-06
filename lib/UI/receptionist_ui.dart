@@ -101,23 +101,23 @@ class ReceptionistUI {
       return;
     }
 
-    bool success = receptionistService.registerPatient(
-      name,
-      email,
-      password,
-      phoneNumber,
-      dateOfBirth,
-      gender,
-      bloodType,
-      address,
-    );
-    
-    if (success) {
+    try {
+      receptionistService.registerPatient(
+        name,
+        email,
+        password,
+        phoneNumber,
+        dateOfBirth,
+        gender,
+        bloodType,
+        address,
+      );
+
       print('\nPatient registered successfully!');
       print('Email: $email');
       print('Password: $password');
-    } else {
-      print('\nFailed to register patient — email may already exist.');
+    } catch (e) {
+      print('\nFailed to register patient: $e');
     }
   }
 
@@ -200,11 +200,11 @@ class ReceptionistUI {
       print('✗ Appointment ID is required!');
       return;
     }
-    bool success = appointmentService.updateStatus(appointmentId, AppointmentStatus.APPROVED);
-    if (success) {
+    try {
+      appointmentService.updateStatus(appointmentId, AppointmentStatus.APPROVED);
       print('\n✓ Appointment approved successfully!');
-    } else {
-      print('\n✗ Failed to approve appointment!');
+    } catch (e) {
+      print('\n✗ Failed to approve appointment: $e');
     }
   }
 
@@ -215,11 +215,11 @@ class ReceptionistUI {
       print('✗ Appointment ID is required!');
       return;
     }
-    bool success = appointmentService.updateStatus(appointmentId, AppointmentStatus.DENIED);
-    if (success) {
+    try {
+      appointmentService.updateStatus(appointmentId, AppointmentStatus.DENIED);
       print('\n✓ Appointment denied!');
-    } else {
-      print('\n✗ Failed to deny appointment!');
+    } catch (e) {
+      print('\n✗ Failed to deny appointment: $e');
     }
   }
 }

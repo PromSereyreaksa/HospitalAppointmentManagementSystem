@@ -1,6 +1,6 @@
 import '../enums/user.dart';
 
-class User {
+abstract class User {
   final String _id;
   final String _password;
   final String _name;
@@ -58,5 +58,35 @@ class User {
 
   UserRole getRole() {
     return _role;
+  }
+
+  /// Authenticates user with provided password
+  bool authenticate(String password) {
+    return _password == password;
+  }
+
+  /// Checks if user has the given email
+  bool hasEmail(String email) {
+    return _email == email;
+  }
+
+  /// Checks if user has a specific role
+  bool hasRole(UserRole role) {
+    return _role == role;
+  }
+
+  /// Checks if user is a doctor
+  bool isDoctor() {
+    return _role == UserRole.DOCTOR;
+  }
+
+  /// Checks if user is a patient
+  bool isPatient() {
+    return _role == UserRole.PATIENT;
+  }
+
+  /// Checks if user is a receptionist
+  bool isReceptionist() {
+    return _role == UserRole.RECEPTIONIST;
   }
 }
