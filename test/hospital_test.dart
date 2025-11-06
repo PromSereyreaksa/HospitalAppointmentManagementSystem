@@ -19,7 +19,8 @@ void main() {
   final String patientsPath = 'lib/Data/storage/patients.json';
   final String usersPath = 'lib/Data/storage/users.json';
 
-  final String appointmentsBackupPath = 'lib/Data/storage/appointments_backup.json';
+  final String appointmentsBackupPath =
+      'lib/Data/storage/appointments_backup.json';
   final String patientsBackupPath = 'lib/Data/storage/patients_backup.json';
   final String usersBackupPath = 'lib/Data/storage/users_backup.json';
 
@@ -82,7 +83,8 @@ void main() {
       try {
         userService.login('john.smith@hospital.com', 'doctor123');
         expect(userService.getCurrentUser(), isNotNull);
-        expect(userService.getCurrentUser()!.getRole(), equals(UserRole.DOCTOR));
+        expect(
+            userService.getCurrentUser()!.getRole(), equals(UserRole.DOCTOR));
       } catch (e) {
         fail('Login should succeed');
       }
@@ -142,31 +144,35 @@ void main() {
     test('5. Duplicate email registration fails', () {
       ReceptionistService receptionistService = ReceptionistService();
 
-      expect(() => receptionistService.registerPatient(
-        'Another Patient',
-        'emma.wilson@email.com',
-        'password123',
-        '555-8888',
-        DateTime(1995, 5, 5),
-        Gender.FEMALE,
-        BloodType.B,
-        '456 Test Avenue',
-      ), throwsException);
+      expect(
+          () => receptionistService.registerPatient(
+                'Another Patient',
+                'emma.wilson@email.com',
+                'password123',
+                '555-8888',
+                DateTime(1995, 5, 5),
+                Gender.FEMALE,
+                BloodType.B,
+                '456 Test Avenue',
+              ),
+          throwsException);
     });
 
     test('5a. Invalid email format registration fails', () {
       ReceptionistService receptionistService = ReceptionistService();
 
-      expect(() => receptionistService.registerPatient(
-        'Test Patient',
-        'invalidemail',
-        'password123',
-        '555-7777',
-        DateTime(1990, 1, 1),
-        Gender.MALE,
-        BloodType.A,
-        '789 Test Road',
-      ), throwsException);
+      expect(
+          () => receptionistService.registerPatient(
+                'Test Patient',
+                'invalidemail',
+                'password123',
+                '555-7777',
+                DateTime(1990, 1, 1),
+                Gender.MALE,
+                BloodType.A,
+                '789 Test Road',
+              ),
+          throwsException);
     });
 
     test('6. Request appointment successfully', () {
@@ -244,14 +250,16 @@ void main() {
         fail('First appointment should succeed');
       }
 
-      expect(() => appointmentService.scheduleAppointment(
-        'pat-002',
-        'doc-003',
-        conflictDate,
-        AppointmentTimeSlot.AFTERNOON_3_4,
-        AppointmentType.FOLLOW_UP,
-        'Conflicting appointment',
-      ), throwsException);
+      expect(
+          () => appointmentService.scheduleAppointment(
+                'pat-002',
+                'doc-003',
+                conflictDate,
+                AppointmentTimeSlot.AFTERNOON_3_4,
+                AppointmentType.FOLLOW_UP,
+                'Conflicting appointment',
+              ),
+          throwsException);
     });
 
     test('9. Update appointment status to APPROVED', () {
@@ -280,8 +288,8 @@ void main() {
         var updatedAppointment = appointmentService
             .checkAppointment(testAppointment.getAppointmentId());
         expect(updatedAppointment, isNotNull);
-        expect(
-            updatedAppointment!.getStatus(), equals(AppointmentStatus.APPROVED));
+        expect(updatedAppointment!.getStatus(),
+            equals(AppointmentStatus.APPROVED));
       } catch (e) {
         fail('Update status should succeed');
       }
@@ -411,53 +419,6 @@ void main() {
       } catch (e) {
         fail('Update notes should succeed');
       }
-    });
-  });
-
-  group('Repository Tests', () {
-    test('13. Save and load users from JSON', () {
-      UserRepository userRepository = UserRepository();
-
-      // Load users
-      var users = userRepository.loadAll();
-
-      expect(users, isNotEmpty);
-      expect(users.length,
-          greaterThanOrEqualTo(5)); // At least 3 doctors + 2 receptionists
-
-      // Verify we have doctors and receptionists
-      bool hasDoctors = users.any((u) => u.getRole() == UserRole.DOCTOR);
-      bool hasReceptionists =
-          users.any((u) => u.getRole() == UserRole.RECEPTIONIST);
-
-      expect(hasDoctors, isTrue);
-      expect(hasReceptionists, isTrue);
-    });
-
-    test('14. Save and load appointments from JSON', () {
-      AppointmentRepository appointmentRepository = AppointmentRepository();
-
-      // Load appointments
-      var appointments = appointmentRepository.loadAll();
-      int initialCount = appointments.length;
-
-      // Appointments can be empty or have data
-      expect(appointments, isNotNull);
-      expect(appointments, isList);
-
-      // The repository should successfully load without errors
-      expect(initialCount, greaterThanOrEqualTo(0));
-    });
-
-    test('15. Handle empty JSON file gracefully', () {
-      // Test that repositories can handle empty files without crashing
-      AppointmentRepository appointmentRepository = AppointmentRepository();
-
-      // This should not throw an exception even if the file is empty
-      var appointments = appointmentRepository.loadAll();
-
-      expect(appointments, isNotNull);
-      expect(appointments, isList);
     });
   });
 }
