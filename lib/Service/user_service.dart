@@ -13,7 +13,7 @@ class UserService {
   void login(String email, String password) {
     try {
       for (int i = 0; i < users.length; i++) {
-        if (users[i].hasEmail(email) && users[i].authenticate(password)) {
+        if (users[i].getEmail() == email && users[i].getPassword() == password) {
           currentUser = users[i];
           return;
         }

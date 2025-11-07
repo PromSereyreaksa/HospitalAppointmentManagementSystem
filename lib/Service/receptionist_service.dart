@@ -28,11 +28,11 @@ class ReceptionistService {
     String address,
   ) {
     try {
-      if (!Patient.isValidEmail(email)) {
+      if (!User.isValidEmail(email)) {
         throw Exception('Invalid email format');
       }
 
-      if (patients.any((patient) => patient.hasEmail(email))) {
+      if (patients.any((patient) => patient.getEmail() == email)) {
         throw Exception('Email already exists');
       }
       String patientId = UuidHelper.generateUuid();

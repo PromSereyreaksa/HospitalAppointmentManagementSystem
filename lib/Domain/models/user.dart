@@ -60,33 +60,10 @@ abstract class User {
     return _role;
   }
 
-  /// Authenticates user with provided password
-  bool authenticate(String password) {
-    return _password == password;
-  }
-
-  /// Checks if user has the given email
-  bool hasEmail(String email) {
-    return _email == email;
-  }
-
-  /// Checks if user has a specific role
-  bool hasRole(UserRole role) {
-    return _role == role;
-  }
-
-  /// Checks if user is a doctor
-  bool isDoctor() {
-    return _role == UserRole.DOCTOR;
-  }
-
-  /// Checks if user is a patient
-  bool isPatient() {
-    return _role == UserRole.PATIENT;
-  }
-
-  /// Checks if user is a receptionist
-  bool isReceptionist() {
-    return _role == UserRole.RECEPTIONIST;
+  // Validates email format using regex pattern
+  // Returns true if email matches standard email format
+  static bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
   }
 }

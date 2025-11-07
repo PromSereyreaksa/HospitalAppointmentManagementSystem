@@ -48,8 +48,19 @@ class Doctor extends Staff {
     _availability = availability;
   }
 
-  /// Checks if this doctor is currently available to accept appointments
-  bool isAvailable() {
-    return _availability;
+  // Checks if doctor is working at the given date/time based on their shift
+  // Returns true if the time falls within the doctor's assigned shift hours
+  bool isWorkingAt(DateTime dateTime) {
+    final hour = dateTime.hour;
+    switch (getShift()) {
+      case Shift.MORNING:
+        return hour >= 8 && hour < 16;
+      case Shift.AFTERNOON:
+        return hour >= 16 && hour < 24;
+      case Shift.NIGHT:
+        return hour >= 0 && hour < 8;
+      default:
+        return false;
+    }
   }
 }

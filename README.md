@@ -15,6 +15,6 @@ A console-based hospital appointment management system built with Dart. This app
 
 ## UML Diagram
 
-![Hospital Appointment UML Diagram](HospitalAppointmentUML.jpg)
+![Hospital Appointment UML Diagram](UMLDiagram.jpg)
 
 

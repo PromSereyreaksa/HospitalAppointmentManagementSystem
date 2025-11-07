@@ -35,19 +35,4 @@ class Receptionist extends Staff {
   String getDeskNumber() {
     return _deskNumber;
   }
-
-  /// Checks if this receptionist is assigned to the specified desk
-  bool isAtDesk(String deskNumber) {
-    return _deskNumber == deskNumber;
-  }
-
-  /// Checks if this receptionist can approve appointments (business rule)
-  bool canApproveAppointments() {
-    return true; // All receptionists can approve in this system
-  }
-
-  /// Checks if this receptionist can register patients (business rule)
-  bool canRegisterPatients() {
-    return true; // All receptionists can register patients
-  }
 }

@@ -67,34 +67,34 @@ class Appointment {
     return _reason;
   }
 
-  /// Checks if this appointment is upcoming (in the future)
+  // Checks if this appointment is upcoming (in the future)
   bool isUpcoming() {
     return _dateTime.isAfter(DateTime.now());
   }
 
-  /// Checks if this appointment is pending approval
+  // Checks if this appointment is pending approval
   bool isPending() {
     return _status == AppointmentStatus.PENDING;
   }
 
-  /// Checks if this appointment is approved
+  // Checks if this appointment is approved
   bool isApproved() {
     return _status == AppointmentStatus.APPROVED;
   }
 
-  /// Checks if this appointment is on the same date as the given date
+  // Checks if this appointment is on the same date as the given date
   bool isSameDate(DateTime date) {
     return _dateTime.year == date.year &&
         _dateTime.month == date.month &&
         _dateTime.day == date.day;
   }
 
-  /// Checks if this appointment conflicts with the given doctor, date, and time slot
+  // Checks if this appointment conflicts with the given doctor, date, and time slot
   bool conflictsWith(String doctorId, DateTime date, AppointmentTimeSlot timeSlot) {
     return _doctorId == doctorId && isSameDate(date) && _timeSlot == timeSlot;
   }
 
-  /// Creates a new appointment with updated status
+  // Creates a new appointment with updated status
   Appointment copyWithStatus(AppointmentStatus newStatus) {
     return Appointment(
       appointmentId: _appointmentId,
@@ -109,7 +109,7 @@ class Appointment {
     );
   }
 
-  /// Creates a new appointment with updated notes
+  // Creates a new appointment with updated notes
   Appointment copyWithNotes(String newNotes) {
     return Appointment(
       appointmentId: _appointmentId,
@@ -124,7 +124,7 @@ class Appointment {
     );
   }
 
-  /// Creates a new appointment with rescheduled date and time
+  // Creates a new appointment with rescheduled date and time
   Appointment copyWithDateTime(
       DateTime newDateTime, AppointmentTimeSlot newTimeSlot) {
     return Appointment(

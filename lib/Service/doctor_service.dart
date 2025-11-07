@@ -70,7 +70,7 @@ class DoctorService {
       if (currentDoctor == null) {
         throw Exception('No doctor is currently logged in');
       }
-      return currentDoctor!.isAvailable();
+      return currentDoctor!.getAvailability();
     } catch (e) {
       rethrow;
     }
